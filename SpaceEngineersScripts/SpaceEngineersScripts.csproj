@@ -1,0 +1,64 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>7.3</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Reference Include="Sandbox.Common">
+        <HintPath>..\spaceEngineersReference\lib\net46\Sandbox.Common.dll</HintPath>
+      </Reference>
+      <Reference Include="Sandbox.Game">
+        <HintPath>..\spaceEngineersReference\lib\net46\Sandbox.Game.dll</HintPath>
+      </Reference>
+      <Reference Include="Sandbox.Graphics">
+        <HintPath>..\spaceEngineersReference\lib\net46\Sandbox.Graphics.dll</HintPath>
+      </Reference>
+      <Reference Include="SpaceEngineers.Game">
+        <HintPath>..\spaceEngineersReference\lib\net46\SpaceEngineers.Game.dll</HintPath>
+      </Reference>
+      <Reference Include="SpaceEngineers.ObjectBuilders">
+        <HintPath>..\spaceEngineersReference\lib\net46\SpaceEngineers.ObjectBuilders.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Audio">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Audio.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Game">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Game.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Input">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Input.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Library">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Library.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Math">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Math.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Render">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Render.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Render11">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Render11.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Scripting">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Scripting.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.Steam">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.Steam.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.UserInterface">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.UserInterface.dll</HintPath>
+      </Reference>
+      <Reference Include="VRage.XmlSerializers">
+        <HintPath>..\spaceEngineersReference\lib\net46\VRage.XmlSerializers.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

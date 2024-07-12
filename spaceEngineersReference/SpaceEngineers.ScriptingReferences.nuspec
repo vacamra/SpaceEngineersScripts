@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>SpaceEngineers.ScriptingReferences</id>
+    <version>1.3.0</version>
+    <title></title>
+    <authors>Keen Software House</authors>
+    <owners>pandincus</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://www.spaceengineersgame.com/eula/</licenseUrl>
+    <icon>space-engineers-logo.jpg</icon>
+    <description>Dependencies commonly used when creating custom scripts for the Keen Software House game "Space Engineers." See https://spaceengineers.fandom.com/wiki/Scripting for quick information on getting started. This primarily exists as a convenience for developers collaborating on a script so that explicit reference files don't need to be shared.</description>
+  </metadata>
+</package>
