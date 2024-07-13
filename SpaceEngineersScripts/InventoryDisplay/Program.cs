@@ -172,19 +172,22 @@ namespace SpaceEngineersScripts.InventoryDisplay
         public void Main(string argument)
         {
             Dictionary<string, MyFixedPoint> amounts = new Dictionary<string, MyFixedPoint>();
-            List<IMyCargoContainer> blocks = new List<IMyCargoContainer>();
-            GridTerminalSystem.GetBlocksOfType(blocks, cargo => cargo.IsSameConstructAs(Me));
-            foreach(var container in blocks)
-            {                
-                List<MyInventoryItem> items = new List<MyInventoryItem>();
-                container.GetInventory().GetItems(items);
-                foreach(var item in items)
+            List<IMyTerminalBlock> blocks = new List<IMyTerminalBlock>();            
+            GridTerminalSystem.GetBlocksOfType(blocks, cargo => cargo.IsSameConstructAs(Me) && cargo.HasInventory);
+            foreach(var block in blocks)
+            {
+                for(int i = 0; i < block.InventoryCount; i++)
                 {
-                    if (!amounts.ContainsKey(item.Type.ToString()))
+                    List<MyInventoryItem> items = new List<MyInventoryItem>();
+                    block.GetInventory(i).GetItems(items);
+                    foreach (var item in items)
                     {
-                        amounts.Add(item.Type.ToString(), MyFixedPoint.Zero);
+                        if (!amounts.ContainsKey(item.Type.ToString()))
+                        {
+                            amounts.Add(item.Type.ToString(), MyFixedPoint.Zero);
+                        }
+                        amounts[item.Type.ToString()] += item.Amount;
                     }
-                    amounts[item.Type.ToString()] += item.Amount;
                 }
             }
             List<string> errors = new List<string>();

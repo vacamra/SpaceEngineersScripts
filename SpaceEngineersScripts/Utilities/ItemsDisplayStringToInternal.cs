@@ -178,7 +178,6 @@ namespace SpaceEngineersScripts.Utilities
             { "MyObjectBuilder_PhysicalGunObject/ElitePistolItem", "S-10E Pistol" },
             { "MyObjectBuilder_PhysicalGunObject/FullAutoPistolItem", "S-20A Pistol" },
             { "MyObjectBuilder_PhysicalGunObject/WelderItem", "Welder" },
-
         };
     }
 }

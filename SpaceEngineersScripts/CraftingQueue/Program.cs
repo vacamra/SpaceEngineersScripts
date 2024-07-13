@@ -162,7 +162,7 @@ namespace SpaceEngineersScripts.CraftingQueue
         {
             Dictionary<string, MyFixedPoint> amounts = new Dictionary<string, MyFixedPoint>();
             List<IMyProductionBlock> blocks = new List<IMyProductionBlock>();
-            GridTerminalSystem.GetBlocksOfType(blocks, cargo => cargo.IsSameConstructAs(Me));
+            GridTerminalSystem.GetBlocksOfType(blocks, production => production.IsSameConstructAs(Me));
             foreach(var production in blocks)
             {                               
                 List<MyProductionItem> items = new List<MyProductionItem>();
