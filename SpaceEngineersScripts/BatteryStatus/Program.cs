@@ -14,12 +14,14 @@ namespace SpaceEngineersScripts.BatteryStatus
             
             Configure this script by modifying the 2 parameters below:
         */
-
+        // Configuration
         string targetBlock = "LCD Panel";      // Name of the block where the battery is to be rendered
         int screenIndex = 0;                           // 0-based index of the screen on target block (e.g. cockpit has 4 screens 0->3)
         int textOffset_X = 0;                           // Offset of the charge% text
         int textOffset_Y = 0;                           // Offset of the charge% text
 
+
+        // Script start
         public Program()
         {
             Runtime.UpdateFrequency = UpdateFrequency.Update100;
