@@ -147,13 +147,13 @@ namespace SpaceEngineersScripts.InventoryDisplay
             long whole;
             long decimals;
             string suffix;
-            if (value > 100000000)
+            if (withTwoDecimals > 100000000)
             {
                 whole = withTwoDecimals / 100000000;
                 decimals = (withTwoDecimals % 100000000) / 100;
                 suffix = "M";
             } 
-            else if (value > 100000)
+            else if (withTwoDecimals > 100000)
             {
                 whole = withTwoDecimals / 100000;
                 decimals = (withTwoDecimals % 100000) / 100;
@@ -203,7 +203,10 @@ namespace SpaceEngineersScripts.InventoryDisplay
                     errors.Add($"Display not found: \n{definition.DisplayId}");
                     continue;
                 }
-                
+                surface.Font = "Monospace";
+                surface.FontSize = 0.9f;
+                surface.ContentType = ContentType.TEXT_AND_IMAGE;
+
                 var rows = definition.Items.Select(displayName => {
                     if (!displayStringToInternalMap.ContainsKey(displayName))
                     {
@@ -217,10 +220,10 @@ namespace SpaceEngineersScripts.InventoryDisplay
                     {
                         amount = MyFixedPoint.Zero;
                     }
-                    int length = 16;
+                    int length = 21;
                     length -= displayName.Length;
                     
-                    return $"{displayName}:{new string(' ', length)}{formatAmount(amount)}";
+                    return $"{displayName}{new string(' ', length)}{formatAmount(amount)}";
                 });
                 surface.WriteText(string.Join("\n", rows));
             }
