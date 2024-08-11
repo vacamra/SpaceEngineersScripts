@@ -7,7 +7,7 @@ using VRageMath;
 
 namespace SpaceEngineersScripts.AutomatedCrafting
 {
-    public class Program: MyGridProgram
+    public class Program : MyGridProgram
     {
         /*
             This script will add items into the crafting queue of given Assembler with the goal of maintaining some given stockpile of items
@@ -17,13 +17,12 @@ namespace SpaceEngineersScripts.AutomatedCrafting
         Dictionary<string, int> goals = new Dictionary<string, int>
         {
             { "Steel Plate", 1000 }
-        };        
-               
+        };
+
 
         public Program()
         {
-            Runtime.UpdateFrequency = UpdateFrequency.Update100;            
-            
+            Runtime.UpdateFrequency = UpdateFrequency.Update100;
         }
 
         private void Status(bool success, string status)
@@ -86,7 +85,7 @@ namespace SpaceEngineersScripts.AutomatedCrafting
         public void Main(string argument)
         {
             var currentCargo = GetCurrentCargo();
-            var craftingQueue =  GetCurrentCrafting();
+            var craftingQueue = GetCurrentCrafting();
 
             var assembler = GridTerminalSystem.GetBlockWithName(masterAssembler) as IMyProductionBlock;
             if (assembler == null)
@@ -103,15 +102,16 @@ namespace SpaceEngineersScripts.AutomatedCrafting
                 }
 
                 MyFixedPoint current, crafting;
-                if (!currentCargo.TryGetValue(displayStringToInternalItem[goal.Key], out current)) {
+                if (!currentCargo.TryGetValue(displayStringToInternalItem[goal.Key], out current))
+                {
                     current = MyFixedPoint.Zero;
                 }
                 if (!craftingQueue.TryGetValue(displayToInternalCrafting[goal.Key], out crafting))
                 {
                     crafting = MyFixedPoint.Zero;
-                }                
+                }
 
-                MyFixedPoint missing = MyFixedPoint.AddSafe(goal.Value ,-MyFixedPoint.AddSafe(current, crafting));
+                MyFixedPoint missing = MyFixedPoint.AddSafe(goal.Value, -MyFixedPoint.AddSafe(current, crafting));
                 if (missing > 0)
                 {
                     Echo($"{missing} is greater than 0");

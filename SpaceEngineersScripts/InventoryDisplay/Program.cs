@@ -19,9 +19,21 @@ namespace SpaceEngineersScripts.InventoryDisplay
         {
             new Target
             {
-                BlockName = "LCD Panel",
+                BlockName = "LCD Ores",
                 DisplayId = 0,
-                Items = new[]{"Iron Ore", "Cobalt Ore"}
+                Items = new[]{"Iron Ore", "Cobalt Ore", "Gold Ore", "Magnesium Ore", "Nickel Ore", "Silicon Ore", "Silver Ore", "Uranium Ore"}
+            },
+            new Target
+            {
+                BlockName = "LCD Ingots",
+                DisplayId = 0,
+                Items = new[]{"Iron Ingot", "Cobalt Ingot", "Gold Ingot", "Magnesium Ingot", "Nickel Ingot", "Silicon Wafer", "Silver Ingot", "Uranium Ingot"}
+            },
+            new Target
+            {
+                BlockName = "LCD Components",
+                DisplayId = 0,
+                Items = new[]{"Steel Plate", "Construction Comp.", "Computer", "Motor", "Girder", "Interior Plate", "Bulletproof Glass", "Metal Grid", "Small Steel Tube", "Large Steel Tube", "Display"}
             }
         };
 
