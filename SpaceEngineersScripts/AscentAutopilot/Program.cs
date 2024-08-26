@@ -13,8 +13,8 @@ namespace SpaceEngineersScripts.AscentAutopilot
             For descent it will calculate when it should enable dampeners and it will enable it at that point.
         */
         // Configuration
-        private float targetVelocity = 195;
-        private float targetGravity = 0.02f;
+        private float targetVelocity = 95;
+        private float targetGravity = 0.05f;
         private float breakElevation = 100f;
         private string ReferenceCockpitName = "Cockpit";
         
@@ -37,6 +37,8 @@ namespace SpaceEngineersScripts.AscentAutopilot
 
         public void Main(string argument)
         {
+            Status(true, "OK");
+
             var cockpit = GridTerminalSystem.GetBlockWithName(ReferenceCockpitName) as IMyCockpit;
             if (cockpit == null)
             {
@@ -55,21 +57,21 @@ namespace SpaceEngineersScripts.AscentAutopilot
                 case "off":
                     TurnOff();
                     break;
-                case null:
+                case "":
                     Run();
                     break;
                 default:
-                    Status(false, "Unknown arg");
+                    Status(false, $"Unknown arg\n{argument}");
                     TurnOff();
                     break;
-            }
+            }            
         }
 
         private List<IMyThrust> GetThrusters()
         {
             List<IMyThrust> thrusters = new List<IMyThrust>();
             var cockpit = GridTerminalSystem.GetBlockWithName(ReferenceCockpitName) as IMyCockpit;
-            GridTerminalSystem.GetBlocksOfType(thrusters, t => t.CubeGrid == Me.CubeGrid && t.Orientation.Forward == cockpit.Orientation.Up);
+            GridTerminalSystem.GetBlocksOfType(thrusters, t => t.CubeGrid == Me.CubeGrid && Base6Directions.GetFlippedDirection(t.Orientation.Forward) == cockpit.Orientation.Up);
 
             return thrusters;
         }
@@ -83,6 +85,8 @@ namespace SpaceEngineersScripts.AscentAutopilot
             {
                 thruster.ThrustOverride = 0;
             }
+            var cockpit = GridTerminalSystem.GetBlockWithName(ReferenceCockpitName) as IMyCockpit;
+            cockpit.DampenersOverride = false;
         }
 
         private void PrepareLanding()
@@ -94,6 +98,8 @@ namespace SpaceEngineersScripts.AscentAutopilot
             {
                 thruster.ThrustOverride = 0;
             }
+            var cockpit = GridTerminalSystem.GetBlockWithName(ReferenceCockpitName) as IMyCockpit;
+            cockpit.DampenersOverride = false;
         }
 
         private void TurnOff()
@@ -159,7 +165,8 @@ namespace SpaceEngineersScripts.AscentAutopilot
 
             var distanceToStop = velocity * timeToStop / 2;
             var startBreakingPoint = distanceToStop + breakElevation;
-            cockpit.TryGetPlanetElevation(MyPlanetElevation.Surface, out double currentElevation);
+            double currentElevation;
+            cockpit.TryGetPlanetElevation(MyPlanetElevation.Surface, out currentElevation);
             if (currentElevation <= startBreakingPoint)
             {
                 TurnOff();
