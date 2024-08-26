@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Sandbox.ModAPI.Ingame;
+﻿using Sandbox.ModAPI.Ingame;
 using VRage.Game.GUI.TextPanel;
 using VRageMath;
 
@@ -12,16 +7,11 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssistLite
     public class Program : MyGridProgram
     {
         // Configuration
-        string rotorGroupName = "Thruster rotors";
-
-
 
         // Script start
         IMyCockpit cockpit;
-        List<IMyThrust> staticDownThrusters = new List<IMyThrust>();
         List<IMyMotorStator> rotors = new List<IMyMotorStator>();
         List<IMyThrust> rotorThrusters = new List<IMyThrust>();
-        List<IMyGyro> gyros = new List<IMyGyro>();
         Mode currentMode = Mode.Dampeners;
 
         private enum Mode { Dampeners, Coast }
@@ -38,16 +28,8 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssistLite
             }
             cockpit = cockpits[0];
 
-            GridTerminalSystem.GetBlocksOfType(staticDownThrusters, thruster => thruster.CubeGrid == cockpit.CubeGrid
-                && thruster.Orientation.Forward == Base6Directions.Direction.Down
-                );
-            GridTerminalSystem.GetBlockGroupWithName(rotorGroupName)?.GetBlocksOfType(rotors);
+            GridTerminalSystem.GetBlocksOfType(rotors);
             GridTerminalSystem.GetBlocksOfType(rotorThrusters, thruster => thruster.CubeGrid != cockpit.CubeGrid && thruster.IsSameConstructAs(cockpit));
-            GridTerminalSystem.GetBlocksOfType(gyros, g => g.IsSameConstructAs(cockpit));
-            foreach(var gyro in gyros)
-            {
-                gyro.GyroOverride = true;
-            }
         }
 
         private struct AtmosphericOrientation
@@ -87,109 +69,13 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssistLite
             // Y = Up/Down (Up = 1, Down = -1)
             // Z = Forward/Backward (Forward = -1, Backward = 1)
 
-            Echo("foo");
-
-            // Get gravity
-            var gravity = cockpit.GetTotalGravity();
-
             Foo(velocityInput);
-            //SetRotors(velocityInput);
-            //SetRotorThrusters();
         }
 
-        private float ComputeSpareThrusterCapacity()
+
+        private float SetRotorAngle(float targetAngle)
         {
-            var currentThrust = 0f;
-            var maxThrust = 0f;
-
-
-            foreach(var thruster in staticDownThrusters)
-            {
-                currentThrust += thruster.CurrentThrust;
-                maxThrust += thruster.MaxEffectiveThrust;                
-            }
-
-            foreach(var thruster in rotorThrusters)
-            {
-                currentThrust += thruster.CurrentThrust;
-                maxThrust += thruster.MaxEffectiveThrust;
-            }
-
-            return 1 - currentThrust / maxThrust;
-        }
-
-        private Vector3D GetRelativeVelocities()
-        {
-            var velocities = cockpit.GetShipVelocities();
-            var gravity = cockpit.GetNaturalGravity();
-
-            Matrix cockpitMatrix;
-            cockpit.Orientation.GetMatrix(out cockpitMatrix);
-                        
-            var absoluteForward = Vector3D.TransformNormal(cockpitMatrix.Forward, cockpit.WorldMatrix);
-
-            var relativeRight = gravity.Cross(absoluteForward);
-            var relativeForward = relativeRight.Cross(gravity);
-            Matrix relativeOrientation = new Matrix();
-            relativeOrientation.Forward = relativeForward.Normalized();
-            relativeOrientation.Right = relativeRight.Normalized();
-            relativeOrientation.Down = gravity.Normalized();
-            relativeOrientation.M44 = 1;
-
-            Matrix changeOfBaseMatrix = Matrix.Invert(relativeOrientation);
-            var relativeVelocities = Vector3D.Transform(velocities.LinearVelocity, changeOfBaseMatrix);
-            return relativeVelocities;
-        }
-
-        private void SetGyros(Vector3 input, float spareThrusterCapacity, float verticalSpeed)
-        {
-            var rollInput = cockpit.RollIndicator;
-            var orientationInput = cockpit.RotationIndicator;
-            var velocities = GetRelativeVelocities();
-            velocities.Z = 0;
-            var sideSlip = (float)cockpit.GetShipVelocities().LinearVelocity.X;
-            var orientation = GetCurrentOrientation();
-
-            float outputRoll = 0, outputYaw, outputPitch;
-            
-
-            if (rollInput != 0)
-            {
-                outputRoll = 5 * rollInput;
-            } 
-            else if (input.X != 0)
-            {
-            }
-            else if (verticalSpeed < -0.15f || Math.Abs(sideSlip) < 0.1f)
-            {
-            }
-            else
-            {
-            }
-
-            Status(true, $"thruster: {spareThrusterCapacity}\nvspeed: {verticalSpeed}\ninput.X: {input.X}\nsideSlip: {sideSlip}\noutputRoll: \n");
-
-            outputPitch = -orientationInput.X;
-            outputYaw = orientationInput.Y;
-
-            Vector3 target = new Vector3(outputPitch, outputYaw, outputRoll);
-            Matrix cockpitMat;
-            cockpit.Orientation.GetMatrix(out cockpitMat);
-            Vector3 locGyroSet = Vector3.Transform(target, Matrix.Transpose(cockpitMat));
-            foreach (var gyro in gyros)
-            {
-                Matrix currentGyroMat;
-                gyro.Orientation.GetMatrix(out currentGyroMat);
-                var ordersForCurrentGyro = Vector3.Transform(locGyroSet, currentGyroMat);
-
-                gyro.Pitch = ordersForCurrentGyro.X;
-                gyro.Yaw = ordersForCurrentGyro.Y;
-                gyro.Roll = ordersForCurrentGyro.Z;
-            }
-        }
-
-        private void SetRotorAngle(float targetAngle)
-        {
+            float lastCurrentAngle = targetAngle;
             foreach (var rotor in rotors)
             {
                 var topGrid = rotor.TopGrid;
@@ -209,6 +95,7 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssistLite
                 float angleDifference = targetAngle - currentAngle;
                 rotor.TargetVelocityRad = 3 * angleDifference * direction;
             }
+            return lastCurrentAngle;
         }
 
         private Vector3D GetCurrentStaticThrust()
@@ -244,7 +131,7 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssistLite
 
             var maxThrustVector = (cockpit.WorldMatrix.Up.Normalized() * totalAvailableThrust).Rotate(cockpit.WorldMatrix.Right, -counterGravityAngle);
             var maxThrustAgainstGravity = Vector3D.ProjectOnVector(ref maxThrustVector, ref currentForces);
-            var minRequiredThrustRatio = currentForces.Length() / maxThrustAgainstGravity.Length();
+            var minRequiredThrustRatio = (float)(currentForces.Length() / maxThrustAgainstGravity.Length());
 
             Echo($"Min required thrust percentage: {minRequiredThrustRatio * 100}%");
             if (minRequiredThrustRatio >= 1)
@@ -256,121 +143,115 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssistLite
             var maxFwThrust = (float)Math.Sqrt((minRequiredThrustRatio - 1) * (minRequiredThrustRatio - 1) * totalAvailableThrust * totalAvailableThrust);
             var maxAcceleration = maxFwThrust / cockpit.CalculateShipMass().TotalMass;
 
-            var maxForwardAngle = counterGravityAngle - maxAvailableAngleOffset;
-            var maxBackwardAngle = counterGravityAngle + maxAvailableAngleOffset;
-
             Echo($"Zero angle: {counterGravityAngle}");
-            Echo($"maxForwardAngle: {maxForwardAngle}");
-            Echo($"maxBackwardAngle: {maxBackwardAngle}");
             Echo($"maxFwThrust: {maxFwThrust}");
             Echo($"maxAcceleration: {maxAcceleration}");
 
-            var forwardCommand = GetForwardIntent(input, maxAcceleration);
-            var upCommand = GetUpIntent(input, maxAcceleration);
+            var upCommand = GetUpIntent(input, minRequiredThrustRatio, maxAcceleration);            
+            var forwardCommand = GetForwardIntent(input, minRequiredThrustRatio, maxAcceleration);
+            Echo($"upCommand: {upCommand}");
+            Echo($"forwardCommand: {forwardCommand}");
+
 
             Vector2 command = new Vector2(forwardCommand, upCommand);
             if (command == Vector2.Zero)
             {
                 SetRotorAngle(0);
+                SetRotorThrusterOutput(0);
                 return;
             };
 
-            command.Normalize();
-            var angle = (float)Math.Asin(command.Y);
-            if (command.X < 0) angle = (float)Math.PI - angle;
+            var commandDirection = command;
+            commandDirection.Normalize();
+            var angle = (float)((commandDirection.X < 0)
+                ? (Math.PI - Math.Asin(commandDirection.Y))
+                : (Math.Asin(commandDirection.Y)));
 
             Echo($"command: {command}");
             Echo($"angle: {angle}");
-
-            var lerpRatio = Math.Abs(angle / (float)Math.PI);
-
-            var targetAngle = maxForwardAngle - (maxForwardAngle - maxBackwardAngle) * lerpRatio;
-            SetRotorAngle(targetAngle);
+            
+            var targetAngle = (counterGravityAngle + angle) - (float)Math.PI / 2;
+            Echo($"targetAngle: {targetAngle}");
+            var currentAngle = SetRotorAngle(targetAngle);
 
             // maxThrustVector
-            var maxThrustAtCurrentAngle = rotorThrusters[0].WorldMatrix.Forward.Normalized() * totalAvailableThrust;
+            var desiredThrust = command * totalAvailableThrust;
 
-            /*
-             * Thruster output: 
-             * if no up/down command: exactly match so that 0 up velocity is created
-             * if up command: full thrust
-             * if down command: 
-             */
+            var maxCurrentThrust = commandDirection;
+            maxCurrentThrust.Rotate(targetAngle - currentAngle);
+            maxCurrentThrust *= totalAvailableThrust;
+
+            var projectedMaxCurrent = maxCurrentThrust.Length() * Math.Cos(targetAngle - currentAngle);
+
+            var proposedRatio = desiredThrust.Length() / projectedMaxCurrent;
+            Echo($"proposedRatio: {proposedRatio}");
+
+            SetRotorThrusterOutput((float)proposedRatio);
         }
 
         private void SetRotorThrusterOutput(float ratio)
         {
             foreach(var thruster in rotorThrusters)
             {
-                thruster.ThrustOverridePercentage = ratio * 100;
+                thruster.ThrustOverride = thruster.MaxEffectiveThrust * ratio;
             }
         }
 
-        private float GetForwardIntent(Vector3 input, float maxAcceleration)
+        private float GetForwardIntent(Vector3 input, float minRequiredThrustRatio, float maxAcceleration)
         {
+            if (input.Z > 0) return -(1 - minRequiredThrustRatio);
+            if (input.Z < 0) return (1 - minRequiredThrustRatio);
             if (input.Z != 0) return -input.Z;
 
             if (currentMode == Mode.Coast) return 0;
+            var maxFw = (float)Math.Sqrt(1 - minRequiredThrustRatio * minRequiredThrustRatio);
 
             // dampeners
             var velocities = cockpit.GetShipVelocities().LinearVelocity;
             var forward = cockpit.WorldMatrix.Forward;
             var forwardVelocity = Vector3D.ProjectOnVector(ref velocities, ref forward);
-
+            bool isForward = Vector3D.Angle(forward, forwardVelocity) < Math.PI / 2;
+            
             float minTimeToStop = (float)forwardVelocity.Length() / maxAcceleration;
-            return MyMath.Clamp(minTimeToStop, -1, 1);
+            if (!isForward) minTimeToStop *= -1;
+            Echo($"fw: {forwardVelocity}, {forwardVelocity.Length()}, {maxAcceleration}");
+            return MyMath.Clamp(minTimeToStop, -maxFw, maxFw);
         }
 
-        private float GetUpIntent(Vector3 input, float maxAcceleration)
+        private float GetUpIntent(Vector3 input, float minRequiredThrustRatio, float maxAcceleration)
         {
-            if (input.Y != 0) return input.Y;
+            if (input.Y > 0) return input.Y;
+            if (input.Y < 0) return 0;
 
-            if (currentMode == Mode.Coast) return 0;
+            if (currentMode == Mode.Coast) return minRequiredThrustRatio;
 
             // dampeners
             var velocities = cockpit.GetShipVelocities().LinearVelocity;
-            var up = cockpit.WorldMatrix.Up;
-            var upVelocity = Vector3D.ProjectOnVector(ref velocities, ref up);
+            var up = -cockpit.GetNaturalGravity();
+            var upVelocityVec = Vector3D.ProjectOnVector(ref velocities, ref up);
+            var angle = Vector3D.Angle(upVelocityVec, up);
+            bool goingUp = angle < Math.PI / 2;
+            var velocity = (float)upVelocityVec.Length();
 
-            float minTimeToStop = (float)upVelocity.Length() / maxAcceleration;
-            return MyMath.Clamp(minTimeToStop, -1, 1);
-        }
-
-        private void SetRotors(Vector3 input)
-        {
-            var currentOrientation = GetCurrentOrientation();
-            var defaultAngle = -currentOrientation.Pitch;
-
-            var totalAvailableThrust = 0f;
-            foreach(var thruster in rotorThrusters)
+            if (goingUp)
             {
-                totalAvailableThrust += thruster.MaxEffectiveThrust;
+                float minTimeToStop = velocity / (float)up.Length();
+                if (minTimeToStop > 1)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return minRequiredThrustRatio * minTimeToStop;
+                }
             }
-            Echo($"Max thrust: {totalAvailableThrust}");
-
-            if (input.Z > 0)
-            {
-
-            } 
-            else if (input.Z < 0)
-            {
-
-            }
-            else if (currentMode == Mode.Dampeners)
-            {
-
-            } 
             else
             {
-
+                float minTimeToStop = velocity / maxAcceleration;
+                return minRequiredThrustRatio + MyMath.Clamp(minTimeToStop, 0, 1 - minRequiredThrustRatio);
             }
-            SetRotorAngle(0);
         }
-
-        private void SetRotorThrusters()
-        {
-
-        }
+      
 
         private void Status(bool success, string status)
         {
