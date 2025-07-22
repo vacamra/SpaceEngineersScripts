@@ -225,7 +225,7 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssistLite
 
             if (currentMode == Mode.Coast) return minRequiredThrustRatio;
 
-            // dampeners
+            // dampeners            
             var velocities = cockpit.GetShipVelocities().LinearVelocity;
             var up = -cockpit.GetNaturalGravity();
             var upVelocityVec = Vector3D.ProjectOnVector(ref velocities, ref up);

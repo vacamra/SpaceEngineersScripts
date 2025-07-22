@@ -21,13 +21,13 @@ namespace SpaceEngineersScripts.InventoryDisplay
             {
                 BlockName = "LCD Ores",
                 DisplayId = 0,
-                Items = new[]{"Iron Ore", "Cobalt Ore", "Gold Ore", "Magnesium Ore", "Nickel Ore", "Silicon Ore", "Silver Ore", "Uranium Ore"}
+                Items = new[]{"Iron Ore", "Cobalt Ore", "Gold Ore", "Magnesium Ore", "Nickel Ore", "Silicon Ore", "Silver Ore", "Uranium Ore", "Platinum Ore", "Ice"}
             },
             new Target
             {
                 BlockName = "LCD Ingots",
                 DisplayId = 0,
-                Items = new[]{"Iron Ingot", "Cobalt Ingot", "Gold Ingot", "Magnesium Ingot", "Nickel Ingot", "Silicon Wafer", "Silver Ingot", "Uranium Ingot"}
+                Items = new[]{"Iron Ingot", "Cobalt Ingot", "Gold Ingot", "Magnesium Powder", "Nickel Ingot", "Silicon Wafer", "Silver Ingot", "Uranium Ingot", "Platinum Ingot"}
             },
             new Target
             {
@@ -162,13 +162,13 @@ namespace SpaceEngineersScripts.InventoryDisplay
             if (withTwoDecimals > 100000000)
             {
                 whole = withTwoDecimals / 100000000;
-                decimals = (withTwoDecimals % 100000000) / 100;
+                decimals = (withTwoDecimals % 100000000) / 1000000;
                 suffix = "M";
             } 
             else if (withTwoDecimals > 100000)
             {
                 whole = withTwoDecimals / 100000;
-                decimals = (withTwoDecimals % 100000) / 100;
+                decimals = (withTwoDecimals % 100000) / 1000;
                 suffix = "k";
             } 
             else

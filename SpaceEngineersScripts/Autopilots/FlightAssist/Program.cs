@@ -230,24 +230,21 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssist
 
         public class PID
         {
-            public float Kp { get; set; } = 0;
-            public float Ki { get; set; } = 0;
-            public float Kd { get; set; } = 0;
-            public float Value { get; private set; }
+            public float P { get; set; } = 0;
+            public float I { get; set; } = 0;
+            public float D { get; set; } = 0;
 
-            float _timeStep = 0;
-            float _inverseTimeStep = 0;
-            float _errorSum = 0;
-            float _lastError = 0;
-            bool _firstRun = true;
+            float timeStep = 0;
+            float errorSum = 0;
+            float lastError = 0;
+            bool firstRun = true;
 
-            public PID(float kp, float ki, float kd, float timeStep)
+            public PID(float p, float i, float d, float timeStep)
             {
-                Kp = kp;
-                Ki = ki;
-                Kd = kd;
-                _timeStep = timeStep;
-                _inverseTimeStep = 1 / _timeStep;
+                P = p;
+                I = i;
+                D = d;
+                this.timeStep = timeStep;
             }
 
             protected virtual float GetIntegral(float currentError, float errorSum, float timeStep)
@@ -256,42 +253,35 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssist
             }
 
             public float Control(float error)
-            {
-                //Compute derivative term
-                float errorDerivative = (error - _lastError) * _inverseTimeStep;
+            {                
+                float errorDerivative = (error - lastError) / timeStep;
 
-                if (_firstRun)
+                if (firstRun)
                 {
                     errorDerivative = 0;
-                    _firstRun = false;
+                    firstRun = false;
                 }
 
-                //Get error sum
-                _errorSum = GetIntegral(error, _errorSum, _timeStep);
+                errorSum = GetIntegral(error, errorSum, timeStep);
+                lastError = error;
 
-                //Store this error as last error
-                _lastError = error;
-
-                //Construct output
-                Value = Kp * error + Ki * _errorSum + Kd * errorDerivative;
-                return Value;
+                return P * error + I * errorSum + D * errorDerivative;
             }
 
             public float Control(float error, float timeStep)
             {
-                if (timeStep != _timeStep)
+                if (timeStep != this.timeStep)
                 {
-                    _timeStep = timeStep;
-                    _inverseTimeStep = 1 / _timeStep;
+                    this.timeStep = timeStep;
                 }
                 return Control(error);
             }
 
             public virtual void Reset()
             {
-                _errorSum = 0;
-                _lastError = 0;
-                _firstRun = true;
+                errorSum = 0;
+                lastError = 0;
+                firstRun = true;
             }
         }
 
@@ -299,7 +289,7 @@ namespace SpaceEngineersScripts.Autopilots.FlightAssist
         {
             public float IntegralDecayRatio { get; set; }
 
-            public DecayingIntegralPID(float kp, float ki, float kd, float timeStep, float decayRatio) : base(kp, ki, kd, timeStep)
+            public DecayingIntegralPID(float p, float i, float d, float timeStep, float decayRatio) : base(p, i, d, timeStep)
             {
                 IntegralDecayRatio = decayRatio;
             }

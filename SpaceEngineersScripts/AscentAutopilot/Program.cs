@@ -13,7 +13,7 @@ namespace SpaceEngineersScripts.AscentAutopilot
             For descent it will calculate when it should enable dampeners and it will enable it at that point.
         */
         // Configuration
-        private float targetVelocity = 95;
+        private float targetVelocity = 195;
         private float targetGravity = 0.05f;
         private float breakElevation = 100f;
         private string ReferenceCockpitName = "Cockpit";
